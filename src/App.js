@@ -19,14 +19,38 @@ function App() {
   }
 
   const addToCart = id => {
-   setCartItems(
-    [...cartItems , ...posts.filter(item => item.id === id)])
+    const alreadyInCart = cartItems.some(item => item.id === id);
+    let newCart = [];
+    if(alreadyInCart){
+      newCart = cartItems.map(post => {
+                  if(post.id === id){
+                    post.qty++;
+                  }
+                  return post;
+                });
+    }
+    else {
+      const post = {...posts.filter(post => post.id === id)[0]};
+      post.qty = 1;
+      newCart = [...cartItems, post];
+    }
+    setCartItems(newCart);
   }
 
   const removeFromCart = id => {
-    setCartItems(
-     cartItems.filter(item => item.id!==id)
-    )
+    let newCart = [];
+    if(cartItems.some(item => item.id === id && item.qty > 1)){
+      newCart = cartItems.map(post => {
+                    if(post.id === id){
+                      post.qty--;
+                    }
+                    return post;
+                  });
+      }
+      else {
+        newCart = cartItems.filter(post => post.id !== id);
+      }
+      setCartItems(newCart);
     }
 
   useEffect(() => {
@@ -38,7 +62,7 @@ function App() {
       <Header/>
       <div className='row'>
         <div className='col-1'>
-          <Home posts={posts} addtoCart={addToCart}/>
+          <Home posts={posts} addtoCart={addToCart} cartItems={cartItems}/>
         </div>
         <div className='col-1'>
           <Cart cartItems={cartItems} removeFromCart={removeFromCart}/>
